@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: API de gestion des produits et commandes
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      summary: Recherche de produits
+      tags:
+        - Products
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/qParam'
+      responses:
+        '200':
+          description: OK - Liste de produits trouvés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              examples:
+                productsFound:
+                  summary: Une liste de produits
+                  value:
+                    - name: "Pommes"
+                      expiration_datetime: "2025-10-25T14:00:00Z"
+                      price: 2.50
+                    - name: "Bananes"
+                      expiration_datetime: "2025-10-20T10:30:00Z"
+                      price: 1.75
+                emptyList:
+                  summary: Une liste vide
+                  value: []
+  /orders:
+    get:
+      summary: Liste paginée des commandes
+      tags:
+        - Orders
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/sizeParam'
+      responses:
+        '200':
+          description: OK - Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+              examples:
+                ordersList:
+                  summary: Exemple de liste de commandes
+                  value:
+                    - identifier: 1
+                      customer_name: "Mickael Jordan"
+                      creation_datetime: "2025-08-25T10:00:00Z"
+                      total_amount: 55.75
+                    - identifier: 2
+                      customer_name: "Marie Valeria"
+                      creation_datetime: "2025-08-25T11:30:00Z"
+                      total_amount: 120.00
+    post:
+      summary: Crée une commande (protégé par Basic Authentication)
+      tags:
+        - Orders
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+            examples:
+              newOrder:
+                summary: Exemple de nouvelle commande
+                value:
+                  customer_name: "Jean Dupont"
+                  total_amount: 55.75
+      responses:
+        '201':
+          description: Créé - Commande créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          description: Non autorisé - Authentification de base requise
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Pommes"
+        expiration_datetime:
+          type: string
+          format: date-time
+          example: "2025-10-25T14:00:00Z"
+        price:
+          type: number
+          format: float
+          example: 2.50
+    Order:
+      type: object
+      properties:
+        identifier:
+          type: integer
+          example: 1
+        customer_name:
+          type: string
+          example: "Rakoto Paul"
+        creation_datetime:
+          type: string
+          format: date-time
+          example: "2025-08-25T10:00:00Z"
+        total_amount:
+          type: number
+          format: float
+          example: 55.75
+    OrderInput:
+      type: object
+      properties:
+        customer_name:
+          type: string
+          example: "Rasoa Marie"
+        total_amount:
+          type: number
+          format: float
+          example: 55.75
+  parameters:
+    limitParam:
+      name: limit
+      in: query
+      description: Nombre maximum d'éléments à retourner
+      required: false
+      schema:
+        type: integer
+      example: 10
+    qParam:
+      name: q
+      in: query
+      description: Terme de recherche
+      required: false
+      schema:
+        type: string
+      example: "riz"
+    pageParam:
+      name: page
+      in: query
+      description: Numéro de la page
+      required: false
+      schema:
+        type: integer
+        example: 1
+    sizeParam:
+      name: size
+      in: query
+      description: Nombre d'éléments par page
+      required: false
+      schema:
+        type: integer
+        example: 20
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
