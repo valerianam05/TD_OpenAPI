@@ -1,0 +1,5 @@
+apis:
+  exo1.yml:
+    alias: api-ping
+  exo2.yml:
+    alias: api-de-gestion-des-utilisateurs
