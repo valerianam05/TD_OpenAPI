@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Exercice 6 - UserProfile API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /users:
+    post:
+      summary: Crée une liste d'utilisateurs
+      description: Crée de nouveaux utilisateurs et retourne la liste complète.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateUserProfile'
+      responses:
+        '201':
+          description: Utilisateurs créés avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+  /users/{id}:
+    get:
+      summary: Récupère un utilisateur par son ID
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: L'utilisateur avec l'ID spécifié n'a pas été trouvé.
+  /users/{id}/personalInfo:
+    put:
+      summary: Met à jour les informations personnelles de l'utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalInfo'
+      responses:
+        '200':
+          description: Informations personnelles mises à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalInfo'
+  /users/{id}/address:
+    put:
+      summary: Met à jour l'adresse de l'utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '200':
+          description: Adresse mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+  /users/{id}/preferences:
+    put:
+      summary: Met à jour les préférences de l'utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Preferences'
+      responses:
+        '200':
+          description: Préférences mises à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+components:
+  schemas:
+    PersonalInfo:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: valeria
+        last_name:
+          type: string
+          example: Nambinintsoa
+        birthdate:
+          type: string
+          format: date
+          example: '2005-03-04'
+        email:
+          type: string
+          format: email
+          example: valeria@gmail.com
+    Address:
+      type: object
+      properties:
+        address_street:
+          type: string
+          example: 123 Main St
+        address_city:
+          type: string
+          example: tana
+        address_country:
+          type: string
+          example: Mcar
+        address_postal_code:
+          type: string
+          example: 'hello'
+    Preferences:
+      type: object
+      properties:
+        needs_newsletter:
+          type: boolean
+          example: true
+        language:
+          type: string
+          enum: [mg, fr, eng]
+          example: mg
+    CreateUserProfile:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PersonalInfo'
+        - $ref: '#/components/schemas/Address'
+        - $ref: '#/components/schemas/Preferences'
+    UserProfile:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            identifier:
+              type: string
+              example: a1b2c3d4e5f6
+        - $ref: '#/components/schemas/PersonalInfo'
+        - $ref: '#/components/schemas/Address'
+        - $ref: '#/components/schemas/Preferences'
+  parameters:
+    UserId:
+      name: id
+      in: path
+      description: L'identifiant unique de l'utilisateur
+      required: true
+      schema:
+        type: string
+        example: a1b2c3d4e5f6
